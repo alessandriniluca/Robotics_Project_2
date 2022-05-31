@@ -1,0 +1,11 @@
+<launch>
+    <node pkg = "map_server" type = "map_server" name = "map_server_amcl" args = "$(find localization)/maps/map.yaml"></node> <!-- to save the map: rosrun map_server map_saver -f map-->
+    <node pkg = "amcl" type = "amcl" name = "amcl" output = "screen">
+        <rosparam command = "load" file = "$(find localization)/config/amcl.yaml"/>
+    </node>
+    <node pkg="tf" type="static_transform_publisher" name="base_footprint_to_base_link" args="0.0 0.0 0.0 0.0 0.0 0.0 base_footprint base_link 10"/>
+    <node pkg = "localization" name = "tf_publisher" type = "tf_publisher"/>
+    <node pkg = "localization" name = "trajectory" type = "trajectory"/>
+
+    <include file="$(find ira_laser_tools)/launch/laserscan_multi_merger.launch" />
+</launch>

@@ -1,8 +1,12 @@
 <launch>
-    <node pkg = "gmapping" name = "slam_gmapping" type = "slam_gmapping">
-        <remap from = "scan" to = "rear/scan"/>
+    <param name="use_sim_time" value="true"/>
+    <node pkg = "gmapping" name = "slam_gmapping" type = "slam_gmapping" clear_params="true" output = "screen"> <!--for params: http://wiki.ros.org/gmapping-->
         <param name = "base_frame" value = "base_footprint"/> <!-- base_footprint coincides with base_link-->
+        <param name = "particles" value = "100"/>
+        <param name = "linearUpdate" value = "0.05"/>
+        <param name = "angularUpdate" value = "0.01"/>
     </node>
     <node pkg="tf" type="static_transform_publisher" name="base_footprint_to_base_link" args="0.0 0.0 0.0 0.0 0.0 0.0 base_footprint base_link 10"/>
     <node pkg = "localization" name = "tf_publisher" type = "tf_publisher"/>
+    <include file="$(find ira_laser_tools)/launch/laserscan_multi_merger.launch" />
 </launch>

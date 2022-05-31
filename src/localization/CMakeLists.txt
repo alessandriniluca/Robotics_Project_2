@@ -10,6 +10,7 @@ project(localization)
 find_package(catkin REQUIRED
     nav_msgs
     tf
+    geometry_msgs
     roscpp
 )
 
@@ -134,6 +135,7 @@ include_directories(
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(tf_publisher src/tf_publisher.cpp)
+add_executable(trajectory src/trajectory.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -147,6 +149,7 @@ add_executable(tf_publisher src/tf_publisher.cpp)
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(tf_publisher ${catkin_LIBRARIES})
+target_link_libraries(trajectory ${catkin_LIBRARIES})
 
 #############
 ## Install ##

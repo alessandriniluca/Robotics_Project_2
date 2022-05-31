@@ -2,6 +2,10 @@
 #include <nav_msgs/Odometry.h>
 #include <tf/transform_broadcaster.h>
 
+/*
+This node is the responsible of the publication of odometry as tf
+*/
+
 class tf_publisher{
     private:
         ros::Subscriber sub;
@@ -20,7 +24,7 @@ class tf_publisher{
         }
     public:
         tf_publisher(ros::NodeHandle n){
-            ROS_INFO("Init of the constructor");
+            ROS_INFO("Init of the tf_publisher node constructor");
             sub = n.subscribe("/odom", 1000, &tf_publisher::tfCallback, this);
         }
 };
