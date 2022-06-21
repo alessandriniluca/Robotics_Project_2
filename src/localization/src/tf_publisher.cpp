@@ -1,6 +1,7 @@
 #include "ros/ros.h"
 #include <nav_msgs/Odometry.h>
-#include <tf/transform_broadcaster.h>
+#include <tf2_ros/transform_broadcaster.h>
+#include <geometry_msgs/TransformStamped.h>
 
 /*
 This node is the responsible of the publication of odometry as tf
@@ -9,7 +10,7 @@ This node is the responsible of the publication of odometry as tf
 class tf_publisher{
     private:
         ros::Subscriber sub;
-        tf::TransformBroadcaster broadcaster;
+        tf2_ros::TransformBroadcaster broadcaster;
 
         void tfCallback(const nav_msgs::Odometry::ConstPtr &msg){
             geometry_msgs::TransformStamped msg_tf;

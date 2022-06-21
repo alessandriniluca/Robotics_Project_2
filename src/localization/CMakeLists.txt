@@ -9,7 +9,7 @@ project(localization)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED
     nav_msgs
-    tf
+    tf2_ros
     geometry_msgs
     roscpp
 )

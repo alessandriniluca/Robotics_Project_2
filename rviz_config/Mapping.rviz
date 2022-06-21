@@ -8,6 +8,7 @@ Panels:
         - /Status1
         - /Map1
         - /Map1/Status1
+        - /LaserScan1
         - /Path1
       Splitter Ratio: 0.5
     Tree Height: 726
@@ -107,8 +108,8 @@ Visualization Manager:
       Axis: Z
       Channel Name: intensity
       Class: rviz/LaserScan
-      Color: 255; 255; 255
-      Color Transformer: Intensity
+      Color: 255; 25; 0
+      Color Transformer: FlatColor
       Decay Time: 0
       Enabled: true
       Invert Rainbow: false
@@ -120,7 +121,7 @@ Visualization Manager:
       Selectable: true
       Size (Pixels): 3
       Size (m): 0.009999999776482582
-      Style: Flat Squares
+      Style: Points
       Topic: /scan
       Unreliable: false
       Use Fixed Frame: true

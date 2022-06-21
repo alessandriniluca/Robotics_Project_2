@@ -3,9 +3,9 @@ beam_skip_distance: 0.5
 beam_skip_threshold: 0.3
 do_beamskip: false
 first_map_only: false
-initial_pose_a: 0.0
-initial_pose_x: 0.0
-initial_pose_y: 0.0
+#initial_pose_a: 0.0
+#initial_pose_x: 0.0
+#initial_pose_y: 0.0
 global_frame_id: map
 gui_publish_rate: -1.0
 kld_err: 0.01

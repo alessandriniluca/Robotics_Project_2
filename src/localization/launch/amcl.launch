@@ -1,11 +1,16 @@
 <launch>
+    <param name="use_sim_time" value="true"/>
     <node pkg = "map_server" type = "map_server" name = "map_server_amcl" args = "$(find localization)/maps/map.yaml"></node> <!-- to save the map: rosrun map_server map_saver -f map-->
     <node pkg = "amcl" type = "amcl" name = "amcl" output = "screen">
         <rosparam command = "load" file = "$(find localization)/config/amcl.yaml"/>
     </node>
-    <node pkg="tf" type="static_transform_publisher" name="base_footprint_to_base_link" args="0.0 0.0 0.0 0.0 0.0 0.0 base_footprint base_link 10"/>
+    <node pkg="tf2_ros" type="static_transform_publisher" name="base_footprint_to_base_link" args="0.0 0.0 0.0 0.0 0.0 0.0 base_footprint base_link"/>
     <node pkg = "localization" name = "tf_publisher" type = "tf_publisher"/>
     <node pkg = "localization" name = "trajectory" type = "trajectory"/>
+
+    <!-- The following two are necessary because even if are published from the bag, sometimes they are not read due to the timing problem -->
+    <node pkg="tf2_ros" type="static_transform_publisher" name="base_link_to_laser_front" args="0.35 0.0 0.0 0.0 0.0 0.5150381 0.8571673 base_link laser_front"/>
+    <node pkg="tf2_ros" type="static_transform_publisher" name="base_link_to_laser_rear" args="-0.35 0.0 0.0 0.0 0.0 0.866 0.5 base_link laser_rear"/>
 
     <include file="$(find ira_laser_tools)/launch/laserscan_multi_merger.launch" />
 </launch>
