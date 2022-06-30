@@ -8,6 +8,8 @@ first_map_only: false
 #initial_pose_y: 0.0
 global_frame_id: map
 gui_publish_rate: -1.0
+initial_cov_xx: 0.8*0.8
+initial_cov_yy: 0.8*0.8
 kld_err: 0.01
 kld_z: 0.99
 laser_lambda_short: 0.1

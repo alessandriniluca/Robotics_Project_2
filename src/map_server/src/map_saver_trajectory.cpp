@@ -95,9 +95,7 @@ class MapTrajectory
     {
       ros::NodeHandle n;
       ROS_INFO("Waiting for the map");
-      //map_sub_ = n.subscribe("map", 1, &MapTrajectory::mapCallback, this); //to delete
       traj_sub = n.subscribe("/amcl_pose", 1000, &MapTrajectory::mapCallback, this);
-      // here subscribe to pose topic
       ROS_INFO("Map received!");
       service=n.advertiseService("SaveTrajectory", &MapTrajectory::traj_funct, this);
     }
@@ -111,7 +109,7 @@ class MapTrajectory
 
     bool traj_funct(map_server::SaveTrajectory::Request &req, map_server::SaveTrajectory::Response &res){
       // save the trajectory onto the map
-      boost::shared_ptr<nav_msgs::OccupancyGrid const> sharedPtr(new nav_msgs::OccupancyGrid); //non risolve
+      boost::shared_ptr<nav_msgs::OccupancyGrid const> sharedPtr(new nav_msgs::OccupancyGrid);
 			sharedPtr = ros::topic::waitForMessage<nav_msgs::OccupancyGrid>("/map", ros::Duration(10));
       map_saved = *sharedPtr;
       std::string mapdatafile = req.filename + ".pgm";
