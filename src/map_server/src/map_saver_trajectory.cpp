@@ -29,6 +29,7 @@
  */
 
 #include <cstdio>
+#include <cmath>
 #include "ros/ros.h"
 #include "ros/console.h"
 #include "nav_msgs/GetMap.h"
@@ -46,9 +47,47 @@ using namespace std;
 class MapTrajectory
 {
   private:
-  nav_msgs::OccupancyGrid map_saved;
-  std::vector<geometry_msgs::PoseWithCovarianceStamped> trajectory;
-  ros::ServiceServer service;
+    nav_msgs::OccupancyGrid map_saved;
+    std::vector<geometry_msgs::PoseWithCovarianceStamped> trajectory;
+    ros::ServiceServer service;
+    std::vector<int> x_interpolation;
+    std::vector<int> y_interpolation;
+
+    std::vector<int> arange(int start, int stop, int step = 1) {
+      std::vector<int> values;
+      for (int value = start; value < stop; value += step)
+          values.push_back(value);
+      return values;
+    }
+
+    void interpolate(int x0, int y0, int x1, int y1){
+      x_interpolation.clear();
+      y_interpolation.clear();
+      bool transpose = false;
+      if (abs(x1 - x0) < abs(y1 - y0)){
+          transpose = true;
+          swap(x0, y0);
+          swap(x1, y1);
+      }
+
+      if (x0>x1){
+          swap(x0, x1);
+          swap(y0, y1);
+      }
+
+      x_interpolation = arange(x0 + 1, x1);
+
+      for (int i = 0; i<x_interpolation.size(); i++){
+          y_interpolation.push_back(round((static_cast< float >(y1 - y0) / static_cast< float >(x1 - x0)) * static_cast< float >(x_interpolation.at(i) - x0) + y0));
+      }
+
+      if (transpose){
+          swap(x_interpolation, y_interpolation);
+      }
+
+      return;
+    }
+
 
   public:
     MapTrajectory(const std::string& mapname, int threshold_occupied, int threshold_free)
@@ -84,9 +123,27 @@ class MapTrajectory
         return false;
       }
 
+      int y_init = 0;
       for(unsigned int i = 0; i<trajectory.size();i++){
         int pixel_position = static_cast<int>(trajectory[i].pose.pose.position.x/map_saved.info.resolution + map_saved.info.width/2) + (map_saved.info.height - static_cast<int>(trajectory[i].pose.pose.position.y/map_saved.info.resolution + map_saved.info.height/2) - 1) * map_saved.info.width;
         map_saved.data[pixel_position] = -2;
+        if(i!=0){
+          int pixel_position_prev_i = static_cast<int>(trajectory[i-1].pose.pose.position.x/map_saved.info.resolution + map_saved.info.width/2) + (map_saved.info.height - static_cast<int>(trajectory[i-1].pose.pose.position.y/map_saved.info.resolution + map_saved.info.height/2) - 1) * map_saved.info.width;
+          int x0 = pixel_position_prev_i % map_saved.info.width;
+          int y0 = pixel_position_prev_i / map_saved.info.width;
+          int x1 = pixel_position % map_saved.info.width;
+          int y1 = pixel_position / map_saved.info.width;
+          ROS_ERROR("x0: %d, y0: %d, x1: %d, y1: %d", x0, y0, x1, y1);
+          interpolate(x0, y0, x1, y1);
+          for (int i = 0; i<x_interpolation.size(); i++){
+            if (y_init == 0){
+              y_init = y_interpolation[0];
+            }
+            ROS_WARN("x: %d, y = %d", x_interpolation[i], y_interpolation[i]);
+            int pixel_position_temp = x_interpolation[i] + (map_saved.info.height - y_interpolation[i] + 2*(y_interpolation[i]-y_init) - 2) * map_saved.info.width;
+            map_saved.data[pixel_position_temp] = -3;
+          }
+        }
       }
       fprintf(out, "P5\n# CREATOR: map_saver_trajectory.cpp %.3f m/pix\n%d %d\n255\n",
               map_saved.info.resolution, map_saved.info.width, map_saved.info.height);
@@ -94,8 +151,11 @@ class MapTrajectory
         for(unsigned int x = 0; x < map_saved.info.width; x++) {
           unsigned int i = x + (map_saved.info.height - y - 1) * map_saved.info.width;
           if (map_saved.data[i] == -2){ // trajectory pixel
-            fputc(150, out);
+            fputc(70, out);
             ROS_INFO("i=%d", i);
+          }else if (map_saved.data[i] == -3){
+            fputc(150, out);
+            ROS_ERROR("interpolazione=%d", i);
           }else if (map_saved.data[i] >= 0 && map_saved.data[i] <= threshold_free_) { // [0,free)
             fputc(254, out);
           } else if (map_saved.data[i] >= threshold_occupied_) { // (occ,255]
