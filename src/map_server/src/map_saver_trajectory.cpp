@@ -123,6 +123,7 @@ class MapTrajectory
         return false;
       }
 
+      ROS_INFO("Computing trajectory with interpolations ...");
       int y_init = 0;
       for(unsigned int i = 0; i<trajectory.size();i++){
         int pixel_position = static_cast<int>(trajectory[i].pose.pose.position.x/map_saved.info.resolution + map_saved.info.width/2) + (map_saved.info.height - static_cast<int>(trajectory[i].pose.pose.position.y/map_saved.info.resolution + map_saved.info.height/2) - 1) * map_saved.info.width;
@@ -133,18 +134,17 @@ class MapTrajectory
           int y0 = pixel_position_prev_i / map_saved.info.width;
           int x1 = pixel_position % map_saved.info.width;
           int y1 = pixel_position / map_saved.info.width;
-          ROS_ERROR("x0: %d, y0: %d, x1: %d, y1: %d", x0, y0, x1, y1);
           interpolate(x0, y0, x1, y1);
           for (int i = 0; i<x_interpolation.size(); i++){
             if (y_init == 0){
               y_init = y_interpolation[0];
             }
-            ROS_WARN("x: %d, y = %d", x_interpolation[i], y_interpolation[i]);
             int pixel_position_temp = x_interpolation[i] + (map_saved.info.height - y_interpolation[i] + 2*(y_interpolation[i]-y_init) - 2) * map_saved.info.width;
             map_saved.data[pixel_position_temp] = -3;
           }
         }
       }
+      ROS_INFO("Generating map file ...")
       fprintf(out, "P5\n# CREATOR: map_saver_trajectory.cpp %.3f m/pix\n%d %d\n255\n",
               map_saved.info.resolution, map_saved.info.width, map_saved.info.height);
       for(unsigned int y = 0; y < map_saved.info.height; y++) {
@@ -282,7 +282,7 @@ int main(int argc, char** argv)
   MapTrajectory mg(mapname, threshold_occupied, threshold_free);
 
   while(!mg.saved_map_ && ros::ok())
-    ros::spinOnce();
+    ros::spin();
 
   return 0;
 }
