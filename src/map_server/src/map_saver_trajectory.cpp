@@ -127,22 +127,22 @@ class MapTrajectory
       int y_init = 0;
       for(unsigned int i = 0; i<trajectory.size();i++){
         int pixel_position = static_cast<int>(trajectory[i].pose.pose.position.x/map_saved.info.resolution + map_saved.info.width/2) + (map_saved.info.height - static_cast<int>(trajectory[i].pose.pose.position.y/map_saved.info.resolution + map_saved.info.height/2) - 1) * map_saved.info.width;
-        // map_saved.data[pixel_position] = -2;
-        if(i!=0){
+        // Print the first pixel
+        if((i==0)){
+          int x = pixel_position % map_saved.info.width;
+          int y = pixel_position / map_saved.info.width;
+          map_saved.data[x + (map_saved.info.height - y - 1) * map_saved.info.width] = -2;
+        }else{ // Interpolate and print on the map all the others points
           int pixel_position_prev_i = static_cast<int>(trajectory[i-1].pose.pose.position.x/map_saved.info.resolution + map_saved.info.width/2) + (map_saved.info.height - static_cast<int>(trajectory[i-1].pose.pose.position.y/map_saved.info.resolution + map_saved.info.height/2) - 1) * map_saved.info.width;
           int x0 = pixel_position_prev_i % map_saved.info.width;
           int y0 = pixel_position_prev_i / map_saved.info.width;
           int x1 = pixel_position % map_saved.info.width;
           int y1 = pixel_position / map_saved.info.width;
           map_saved.data[x0 + (map_saved.info.height - y0 - 1) * map_saved.info.width] = -2;
-          // int x0 = trajectory[i-1].pose.pose.position.x/map_saved.info.resolution + map_saved.info.width/2;
-          // int y0 = trajectory[i-1].pose.pose.position.y/map_saved.info.resolution + map_saved.info.height/2;
-          // int x1 = trajectory[i].pose.pose.position.x/map_saved.info.resolution + map_saved.info.width/2;
-          // int y1 = trajectory[i].pose.pose.position.y/map_saved.info.resolution + map_saved.info.height/2;
           interpolate(x0, y0, x1, y1);
           for (int i = 0; i<x_interpolation.size(); i++){
             int pixel_position_temp = x_interpolation[i] + (map_saved.info.height - y_interpolation[i] - 1) * map_saved.info.width;
-            map_saved.data[pixel_position_temp] = -3;
+            map_saved.data[pixel_position_temp] = -2;
           }
         }
       }
@@ -153,11 +153,8 @@ class MapTrajectory
         for(unsigned int x = 0; x < map_saved.info.width; x++) {
           unsigned int i = x + (map_saved.info.height - y - 1) * map_saved.info.width;
           if (map_saved.data[i] == -2){ // trajectory pixel
-            fputc(70, out);
-            ROS_INFO("i=%d", i);
-          }else if (map_saved.data[i] == -3){
             fputc(150, out);
-            ROS_ERROR("interpolazione=%d", i);
+            ROS_INFO("i=%d", i);
           }else if (map_saved.data[i] >= 0 && map_saved.data[i] <= threshold_free_) { // [0,free)
             fputc(254, out);
           } else if (map_saved.data[i] >= threshold_occupied_) { // (occ,255]
