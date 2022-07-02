@@ -152,7 +152,6 @@ class MapTrajectory
           unsigned int i = x + (map_saved.info.height - y - 1) * map_saved.info.width;
           if (map_saved.data[i] == -2){ // trajectory pixel
             fputc(150, out);
-            ROS_INFO("i=%d", i);
           }else if (map_saved.data[i] >= 0 && map_saved.data[i] <= threshold_free_) { // [0,free)
             fputc(254, out);
           } else if (map_saved.data[i] >= threshold_occupied_) { // (occ,255]
