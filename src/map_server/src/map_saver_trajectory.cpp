@@ -164,27 +164,7 @@ class MapTrajectory
       
 
       fclose(out);
-
-
-      std::string mapmetadatafile = req.filename + ".yaml";
-      ROS_INFO("Writing map occupancy data and trajectory to %s", mapmetadatafile.c_str());
-      FILE* yaml = fopen(mapmetadatafile.c_str(), "w");
-
-      geometry_msgs::Quaternion orientation = map_saved.info.origin.orientation;
-      tf2::Matrix3x3 mat(tf2::Quaternion(
-        orientation.x,
-        orientation.y,
-        orientation.z,
-        orientation.w
-      ));
-      double yaw, pitch, roll;
-      mat.getEulerYPR(yaw, pitch, roll);
-
-      fprintf(yaml, "image: %s\nresolution: %f\norigin: [%f, %f, %f]\nnegate: 0\noccupied_thresh: 0.65\nfree_thresh: 0.196\n\n",
-              mapdatafile.c_str(), map_saved.info.resolution, map_saved.info.origin.position.x, map_saved.info.origin.position.y, yaw);
-
-      fclose(yaml);
-
+      
       ROS_INFO("Done\n");
       saved_map_ = true;
       return true;

@@ -1,0 +1,58 @@
+### Team Information:
+-> 10569363, Luca Alessandrini
+-> 10571436, Mattia Portanti
+-> 10829293, Massimo Buono
+
+
+### Files Description
+In our src folder appears three packages:
+1) localization: this package contains two nodes: tf_publisher.cpp, which is the node requested to publish the odometry as tf, and trajectory.cpp, the node needed to create the trajectory which is published on topic path, used for visualization.
+Moreover this package contains the two launch files needed to run the nodes and publish the static tf.
+1.a) mapping.launch: it is used to start gmapping, what we use to create the map, with all the parameters. To merge the scans, we included the launch file "laserscan_multi_merger.launch" present in the package ira_laser_tools.
+1.b) amcl.launch: it is used to start the localization with amcl. For simplicity, we wrote all the parameters of amcl in a separated file, amcl.yaml (config folder of localization package). In this launch file, we also call our custom node in the package map_server, "map_saver_trajectory", needed to save the pgm file of the trajectory.
+2) ira_laser_tools: this is the package used to merge the scans. We modified the launchfile laserscan_multi_merger.launch by putting the correct values of: 
+	->topic names
+	->minimum angle
+	->maximum angle
+Moreover we computed an increment angle such that we did not exceed the maximum number of scans supported by gmapping.
+3) map_server: this package, cloned from github, contains an additional custom node "map_saver_trajectory.cpp". It is inspired from "map_saver.cpp", and it can be used to save the .pgm file of the map with the trajectory. 
+This save the map with trajectory in .ros folder interpolating the points from /amcl_pose topic.(clearly, it is an interpolation, so we have no assurance that the robot is passed from there, but it is reasonable to assume that, since we need to have a continuous movement, since the velocities are not extremely high, and since the time between two pose messages is small).
+
+
+### TF structure
+map -> odom -> base_footprint -> base_link
+                                        |_ laser_front
+                                        |_ laser_rear
+
+### Bag usage
+-> robotics1_final.bag -> map creation
+-> robotics2_final.bag -> localization test
+-> robotics3_final.bag -> localization test
+
+
+### Node used for map creation
+To create the map, we used slam_gmapping of gmapping package.
+To save the map created we use map_saver of map_server package.
+
+
+### How to start and use
+To create the map:
+	-> roslaunch localization mapping.launch
+	-> rviz in order to visualize the creation (we included our config file in the submission)
+	-> rosbag play [path/to/bags]/robotics1_final.bag --clock
+	-> save the map with: rosrun map_server map_saver -f map
+		-> Notice that that the map must have name "map"
+		-> Notice that with this command the map is saved in the folder where the command is called
+			-> if not already done, put the created map.pgm and map.yaml files in the "maps" folder of localization package
+
+To test the localization:
+	-> be sure to have the map.pgm and map.yaml files in the "maps" folder of the localization package.
+	-> roslaunch localization amcl.launch
+	-> rviz in order to visualize the creation (we included our config file in the submission)
+	-> rosbag play [path/to/bags]/robotics2_final.bag --clock (or robotics3_final.bag)
+	-> to save the trajectory: rosservice call /SaveTrajectory [file_name]
+		->Notice that the saved trajectory pgm and yaml file will be placed in the .ros folder of the computer.
+
+
+### Important/Interesting things
+In order to save the trajectory, we re-wrote an existing node. We added a service to it, and, considering the map as a matrix, we performed the interpolation between each two subsequent points. In order to print the trajectory, since the saved file is in grey-scale, we used an intermediate value between occupied and free in order to make it visible.

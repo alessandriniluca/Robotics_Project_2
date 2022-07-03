@@ -11,6 +11,6 @@
 	<param name="angle_increment" value="0.0031"/>
 	<param name="scan_time" value="0.0333333"/>
 	<param name="range_min" value="0.0"/>
-	<param name="range_max" value="16.0"/> <!--read doing rostopic echo /front/scan | grep range_max and rostopic echo /rear/scan | grep range_max-->
+	<param name="range_max" value="16.0"/>
 	</node>
 </launch>
