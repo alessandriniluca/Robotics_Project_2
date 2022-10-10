@@ -5,7 +5,7 @@ University: **Politecnico di Milano, Laurea Magistrale (MSc) - Computer Science 
 
 ## The project
 We had to develop this project with ROS, and we had some bags recorded.
-The robot with which were recorded, was an omnidirectional robot with mecanum wheels (4 wheels with rollers at 45°). In the bag files, the following topics were published:
+The robot with which were recorded, was an omnidirectional robot with mecanum wheels (4 wheels with rollers at 45°); is the same robot of the first project. In the bag files, the following topics were published:
 - `/odom`: odometry topic;
 - `/front/scan`: laser mounted in front of the robot;
 - `/rear/scan`: laser mounted on the rear of the robot;
